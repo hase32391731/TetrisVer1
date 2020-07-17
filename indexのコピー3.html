@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+        body{
+            background:black;
+        }
+        canvas{
+            background:white;
+        }
+
+        #anticlockwise,#clockwise,#right,#down,#left{
+            background: white;
+            display:inline-block;
+        }
+
+        #right,#down,#left{
+            font-size: 100px;
+        }
+        #anticlockwise,#clockwise{
+            font-size:140px;
+        }
+    </style>
+  </head>
+  <body>
+    <canvas width="300px" height="600px"></canvas>
+    
+    <div id="direction">
+        <div id="left">←</div>
+        <div id="down">↓</div>
+        <div id="right">→</div>
+    </div>
+    <div>
+        <div id="clockwise">↩️</div>
+        <div id="anticlockwise">↪️</div>
+    </div>
+    <script>
+        'use strict';
+        {
+            const left = document.getElementById('left');
+            const right = document.getElementById('right');
+            const down = document.getElementById('down');
+            const clockwise = document.getElementById('clockwise');
+            const anticlockwise = document.getElementById('anticlockwise');
+            const canvas = document.querySelector('canvas');
+            const context = canvas.getContext('2d');
+            const side = 30
+            var x = 0;
+            var y = 0;
+            var row;
+            var column;
+            var num;
+
+            const blocks =
+            [
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],
+            [null,null,null,null,null,null,null,null,null,null],];
+
+            const isdropped =[true];
+            //const NofCheckedT = [0];
+            const DropNoProblem =[true];
+            const Eliminated = [false];
+            const turned = [false];
+            const sideofT = ["middle"];
+            const direction =[1];
+            const typeOfT = ["T"];
+            const CoordOfT ={
+                xa:null,
+                xb:null,
+                xc:null,
+                xd:null,
+                ya:null,
+                yb:null,
+                yc:null,
+                yd:null,
+            };
+            //const CofT
+
+            function T_Tetrimino(){
+                blocks[1].splice(4,1,"dropping"); //(5,2)
+                blocks[0].splice(5,1,"dropping"); //(6,1)
+                blocks[1].splice(5,1,"dropping"); //(6,2)
+                blocks[2].splice(5,1,"dropping");
+                context.fillRect(side*4,side,side,side);//(5,2)
+                context.fillRect(side*5,0   ,side,side);//(6,1)
+                context.fillRect(side*5,side,side,side);//(6,2)
+                context.fillRect(side*5,side*2,side,side);
+            }
+
+            function SpecificTetrimino(){
+                blocks[CoordOfT.ya].splice(CoordOfT.xa,1,"dropping"); //(5,2)
+                blocks[CoordOfT.yb].splice(CoordOfT.xb,1,"dropping"); //(6,1)
+                blocks[CoordOfT.yc].splice(CoordOfT.xc,1,"dropping"); //(6,2)
+                blocks[CoordOfT.yd].splice(CoordOfT.xd,1,"dropping");
+                context.fillRect(side*CoordOfT.xa,side*CoordOfT.ya,side,side);//(5,2)
+                context.fillRect(side*CoordOfT.xb,side*CoordOfT.yb,side,side);//(6,1)
+                context.fillRect(side*CoordOfT.xc,side*CoordOfT.yc,side,side);//(6,2)
+                context.fillRect(side*CoordOfT.xd,side*CoordOfT.yd,side,side);
+            }
+
+           
+            function fillTetris(){
+                for(let i=0;i<20;i++){
+                    x = 0;
+                for(let i=0;i<10;i++){
+                context.strokeRect(x,y,side,side);
+                x = x + 30;
+            };
+            y = y + 30;
+            };
+            };  
+
+            function candrop(){
+                if(isdropped[0] ==false){
+                    console.log("isdropped???"+isdropped[0])
+                    dropbox();
+                }else{
+                    EliminateColumn();
+                    whichTetrimino();
+                    SpecificTetrimino();
+                    isdropped.splice(0,1,false);
+                    console.log("whichTetrimino");
+                    //T_Tetrimino();
+                    
+                    //dropbox()
+                }
+            }
+            //isdropped.splice(0,1,"true");
+
+            function EliminateColumn(){
+                blocks.reverse();
+                blocks.forEach((row,i)=>{
+                        if(row == ["dropped","dropped","dropped","dropped","dropped","dropped","dropped","dropped","dropped","dropped"]||Eliminated[0]==true){
+                            Eliminated.splice(0,1,true);
+                            blocks.splice(i,1,blocks[i+1]);
+                            console.log("Eliminated"+Eliminated[0]);        
+                        }
+            })
+            console.log("Eliminated"+Eliminated[0]);   
+                blocks.reverse();
+                Eliminated.splice(0,1,false);
+            }
+
+            function whichTetrimino(){
+                let TofT
+                TofT = Math.floor(Math.random()*7)
+                if(TofT==0 ){
+                    typeOfT.splice(0,1,"L");
+                    CoordOfT.xa=6; CoordOfT.xb=4; CoordOfT.xc=5; CoordOfT.xd=6;
+                    CoordOfT.ya=0; CoordOfT.yb=1; CoordOfT.yc=1; CoordOfT.yd=1;}
+                if(TofT==1 ){
+                    typeOfT.splice(0,1,"O");
+                    CoordOfT.xa=4; CoordOfT.xb=5; CoordOfT.xc=4; CoordOfT.xd=5;
+                    CoordOfT.ya=0; CoordOfT.yb=0; CoordOfT.yc=1; CoordOfT.yd=1;}
+                if(TofT==2 ){
+                    typeOfT.splice(0,1,"S");
+                    CoordOfT.xa=4; CoordOfT.xb=5; CoordOfT.xc=3; CoordOfT.xd=4;
+                    CoordOfT.ya=0; CoordOfT.yb=0; CoordOfT.yc=1; CoordOfT.yd=1;}
+                if(TofT==3 ){
+                    typeOfT.splice(0,1,"Z");
+                    CoordOfT.xa=3; CoordOfT.xb=4; CoordOfT.xc=4; CoordOfT.xd=5;
+                    CoordOfT.ya=0; CoordOfT.yb=0; CoordOfT.yc=1; CoordOfT.yd=1;}
+                if(TofT==4 ){
+                    typeOfT.splice(0,1,"J");
+                    CoordOfT.xa=3; CoordOfT.xb=3; CoordOfT.xc=4; CoordOfT.xd=5;
+                    CoordOfT.ya=0; CoordOfT.yb=1; CoordOfT.yc=1; CoordOfT.yd=1;}
+                if(TofT==5 ){
+                    typeOfT.splice(0,1,"I");
+                    CoordOfT.xa=3; CoordOfT.xb=4; CoordOfT.xc=5; CoordOfT.xd=6;
+                    CoordOfT.ya=0; CoordOfT.yb=0; CoordOfT.yc=0; CoordOfT.yd=0;}
+                if(TofT==6 ){
+                    typeOfT.splice(0,1,"T");
+                    CoordOfT.xa=3; CoordOfT.xb=4; CoordOfT.xc=5; CoordOfT.xd=4;
+                    CoordOfT.ya=0; CoordOfT.yb=0; CoordOfT.yc=0; CoordOfT.yd=1;}
+                    
+                    //dropbox();
+            }
+
+            function TurnT(){
+                    blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping"){
+                            if(blocks[i][j] == "dropping"){
+                            if(direction[0]%4==1){
+                            }
+                        } 
+                            if(direction[0]%4==1){
+                            }
+                        } 
+                })  
+            })
+            }
+
+            function TurnI(){
+                console.log("TurnI");
+                whiteOut();
+                    blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping" && turned[0] == false){
+                            if(direction[0]%2==0){
+                                if(blocks[i+1][j+1] == null && blocks[i+2][j+1] == null){
+                                console.log("i"+i+"j"+j);
+                                blocks[i].splice(j,1,null);
+                                blocks[i].splice(j+2,2,null,null);
+                                blocks[i-1].splice(j+1,1,"dropping");
+                                blocks[i+1].splice(j+1,1,"dropping");
+                                blocks[i+1].splice(j+1,1,"dropping");
+                                turned.splice(0,1,true)
+                                }
+                            }
+                            if(direction[0]%2==1){
+                                if(blocks[i+1][j-1] == null && blocks[i+1][j+2] == null){
+                                    if(blocks[i+1][j-1] == null && blocks[i+1][j+3] == null){
+                                console.log("i"+i+"j"+j);
+                                blocks[i-1].splice(j+1,1,null);
+                                blocks[i-1].splice(j+1,1,null);
+                                blocks[i-1].splice(j+1,1,null);
+                                blocks[i+1].splice(j-1,1,"dropping");
+                                blocks[i+1].splice(j+2,1,"dropping");
+                                blocks[i+1].splice(j+3,1,"dropping");
+                                turned.splice(0,1,true);
+                                    }
+                                }
+                            }
+                            turned.splice(0,1,false)
+                        } 
+                })  
+            })
+            blackIn();
+            }
+
+            function whiteOut(){
+                blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping" && isdropped[0] == false){
+                            　　 context.fillStyle='white';
+                                context.fillRect(side*j,side*i,side,side);
+                                context.strokeRect(side*j,side*i,side,side);
+                                //console.log("前"+i,j,blocks[i][j]+"isdropped?"+isdropped[0]);
+                        }   
+                })  
+            })
+            }
+
+            function blackIn(){
+                blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping" ||blocks[i][j] == "dropped"){
+                        context.fillStyle='black';
+                        context.fillRect(side*j,side*i,side,side);
+                        //console.log("後"+i,j,blocks[i][j]+"isdropped?"+isdropped[0]);
+                        }
+                })
+            })
+            }
+
+            function dropbox(){
+                whiteOut();
+            blocks.reverse();
+            blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                            if(blocks[i][j] == "dropping"){
+
+                                if(i==0){
+                                    DropNoProblem.splice(0,1,false)
+                                    //clearInterval(startdrop);
+                                    console.log("isdropped"+isdropped[0] + "i=0");
+                                }else if(1<=i && blocks[i-1][j]=="dropped"){
+                                    DropNoProblem.splice(0,1,false)
+                                    console.log("oneisdropped"+isdropped[0]);
+                                }else {
+                                    //NofCheckedT.splice(0,1,NofCheckedT[0]+1);
+                                    console.log("i"+i+"j"+j+"OK");
+                                    }
+                            }
+                })
+            })
+            if(DropNoProblem[0]==true){
+                blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                            if(blocks[i][j] == "dropping"){
+                                    blocks[i-1].splice(j,1,"dropping");
+                                    blocks[i].splice(j,1,null);
+                                    //NofCheckedT.splice(0,1,NofCheckedT[0]-1);
+                                    console.log("i"+i+"j"+j+"NoProblem"+DropNoProblem[0]);
+                            }
+                })
+            })
+            }else{
+                blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                            if(blocks[i][j] == "dropping"){
+                                    blocks[i].splice(j,1,"dropped");
+                                    isdropped.splice(0,1,true);
+                                    direction.splice(0,1,1);
+                                    sideofT.splice(0,1,"middle");
+                                    console.log("isdropped"+isdropped[0] + "i=0");    
+                            }
+                })
+            })
+            }
+            DropNoProblem.splice(0,1,true);
+            blocks.reverse();
+            console.log("isdropped??"+isdropped[0]);
+            blackIn();
+            }
+
+            function move2left(){
+                whiteOut();
+
+                blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping" && isdropped[0] == false){
+                                if(j==0){
+                                sideofT.splice(0,1,"left");
+                                console.log("i:"+i+"j:"+j+"column:"+blocks[i][j]+sideofT[0]);
+                            }else if(blocks[i][j-1]=="dropped"){
+                                sideofT.splice(0,1,"left");
+                                console.log(sideofT[0]);
+                            }
+                            
+                        }   
+                })  
+            })
+            if(sideofT[0]!="left"){
+                blocks.forEach((row,i)=>{
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping" && isdropped[0] == false){
+                                blocks[i].splice(j-1,1,"dropping");
+                                blocks[i].splice(j,1,null);
+                                console.log("sideofT[0]"+sideofT[0]+"i"+i+"j"+j);
+                        }   
+                })  
+            })
+            }
+
+            blackIn();
+            }
+
+            function move2right(){
+                whiteOut();
+
+                blocks.forEach((row,i)=>{
+                    //row.reverse();
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping" && isdropped[0] == false){
+                                if(j==9){
+                                sideofT.splice(0,1,"right");
+                                console.log("i:"+i+"j:"+j+"column:"+blocks[i][j]+sideofT[0]);
+                            }else if(blocks[i][j-1]=="dropped"){
+                                sideofT.splice(0,1,"right");
+                            }else{
+                                console.log(sideofT[0]+"i:"+i+"j:"+j);
+                            }
+                            
+                        }   
+                })
+                //row.reverse();
+            })
+            console.log(sideofT[0]);
+            if(sideofT[0]!="right"){
+                blocks.forEach((row,i)=>{
+                    row.reverse();
+                        row.forEach((column,j)=>{
+                        if(blocks[i][j] == "dropping"){
+                                blocks[i].splice(j-1,1,"dropping");
+                                blocks[i].splice(j,1,null);
+                                console.log(sideofT[0]+"i"+i+"j"+j);
+                        }   
+                })  
+                    row.reverse();
+            })
+            }
+
+            blackIn();
+            }
+
+            function TurnTetrimino(){
+                if(isdropped[0] == false){
+                    whiteOut();
+                    if(typeOfT[0]=="L"){}
+                    if(typeOfT[0]=="O"){return}
+                    if(typeOfT[0]=="S"){}
+                    if(typeOfT[0]=="Z"){}
+                    if(typeOfT[0]=="J"){}
+                    if(typeOfT[0]=="I"){TurnI();}
+                    if(typeOfT[0]=="T"){}
+                    blackIn();
+                }
+                
+            }
+        
+            
+            //T_Tetrimino();
+            
+            for(let i=0;i<20;i++){
+                console.log(blocks[i].indexOf("dropping"));
+            }
+
+            left.addEventListener('click',()=>{
+                if(sideofT[0]!="left" && isdropped[0] == false){
+                    move2left();
+                }
+            })
+
+            right.addEventListener('click',()=>{
+                if(sideofT[0]!="right" && isdropped[0] == false){
+                    console.log("right"+"ideofT[0]"+sideofT[0])
+                    move2right();
+                }
+            })
+
+            var downT //= setInterval(candrop,100);
+            //clearInterval(downT);
+            //setInterval(downT);
+            //downT = setInterval(candrop,100);
+
+            down.addEventListener('mousedown',()=>{
+                //const downT = setInterval(candrop,100);
+                //clearInterval(startdrop);
+                //setInterval(downT);
+                downT = setInterval(candrop,100);
+            })
+
+            down.addEventListener('mouseup',()=>{
+                clearInterval(downT);
+                //const startdrop = setInterval(candrop,500);
+
+            })
+
+            clockwise.addEventListener('click',()=>{
+                if(isdropped == false){
+                    direction.splice(0,1,direction[0]+1);
+                    TurnTetrimino();
+                }
+            })
+            anticlockwise.addEventListener('click',()=>{
+                if(isdropped[0] == false){
+                    direction.splice(0,1,direction[0]+5);
+                    TurnTetrimino();
+                }
+            })
+
+            //rotate.addEventListener('click',()=>{
+                //console.log(typeOfT[0]);
+                //TurnTetrimino();
+            //})
+            
+
+            console.log(blocks[0][4]);
+            
+            fillTetris();
+
+            const startdrop = setInterval(candrop,500);
+            //function willdrop(){}
+            //const startdrop = setTimeout(willdrop,500);
+            
+
+    
+            
+        }
+    </script>
+  </body>
+  
+</html>
